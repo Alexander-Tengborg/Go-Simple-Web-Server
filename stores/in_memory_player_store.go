@@ -1,4 +1,4 @@
-package main
+package stores
 
 import "sync"
 
@@ -7,8 +7,8 @@ func NewInMemoryPlayerStore() *InMemoryPlayerStore {
 }
 
 type InMemoryPlayerStore struct {
-	store map[string]int
 	mu    sync.Mutex
+	store map[string]int
 }
 
 func (i *InMemoryPlayerStore) GetPlayerScore(name string) int {

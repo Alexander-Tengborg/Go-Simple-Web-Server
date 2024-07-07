@@ -1,11 +1,21 @@
 package main
 
 import (
+	"Go-Simple-Web-Server/stores"
 	"log"
 	"net/http"
 )
 
 func main() {
-	server := &PlayerServer{NewInMemoryPlayerStore()}
-	log.Fatal(http.ListenAndServe(":8080", server))
+	store, err := stores.NewBoltPlayerStore("prod.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	server := &PlayerServer{store}
+
+	err = http.ListenAndServe(":8080", server)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

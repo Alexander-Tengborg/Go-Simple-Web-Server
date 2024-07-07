@@ -1,13 +1,24 @@
 package main
 
 import (
+	"Go-Simple-Web-Server/stores"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRecordingWinsAndRetrievingThem(t *testing.T) {
-	store := NewInMemoryPlayerStore()
+	DB_NAME := "dev.db"
+
+	store, err := stores.NewBoltPlayerStore(DB_NAME)
+	assert.Nil(t, err)
+	defer store.Close()
+
+	err = store.ResetBucket()
+	assert.Nil(t, err)
+
 	server := PlayerServer{store}
 	player := "Linda"
 
@@ -18,6 +29,6 @@ func TestRecordingWinsAndRetrievingThem(t *testing.T) {
 	response := httptest.NewRecorder()
 	server.ServeHTTP(response, newGetScoreRequest(player))
 
-	assertStatus(t, response.Code, http.StatusOK)
-	assertResponseBody(t, response.Body.String(), "3")
+	assert.Equal(t, http.StatusOK, response.Code)
+	assert.Equal(t, "3", response.Body.String())
 }

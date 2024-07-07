@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type StubPlayerStore struct {
@@ -36,8 +38,8 @@ func TestGETPlayers(t *testing.T) {
 
 		server.ServeHTTP(response, request)
 
-		assertStatus(t, response.Code, http.StatusOK)
-		assertResponseBody(t, response.Body.String(), "20")
+		assert.Equal(t, response.Code, http.StatusOK)
+		assert.Equal(t, response.Body.String(), "20")
 	})
 
 	t.Run("returns Steve's score", func(t *testing.T) {
@@ -46,8 +48,8 @@ func TestGETPlayers(t *testing.T) {
 
 		server.ServeHTTP(response, request)
 
-		assertStatus(t, response.Code, http.StatusOK)
-		assertResponseBody(t, response.Body.String(), "4")
+		assert.Equal(t, response.Code, http.StatusOK)
+		assert.Equal(t, response.Body.String(), "4")
 	})
 
 	t.Run("returns 404 on missing players", func(t *testing.T) {
@@ -56,7 +58,7 @@ func TestGETPlayers(t *testing.T) {
 
 		server.ServeHTTP(response, request)
 
-		assertStatus(t, response.Code, http.StatusNotFound)
+		assert.Equal(t, response.Code, http.StatusNotFound)
 	})
 }
 
@@ -74,7 +76,7 @@ func TestStoreWins(t *testing.T) {
 
 		server.ServeHTTP(response, request)
 
-		assertStatus(t, response.Code, http.StatusAccepted)
+		assert.Equal(t, response.Code, http.StatusAccepted)
 
 		if len(store.winCalls) != 1 {
 			t.Errorf("got %d calls to recordWin, want %d", len(store.winCalls), 1)
@@ -94,20 +96,4 @@ func newGetScoreRequest(player string) *http.Request {
 func newPostWinRequest(player string) *http.Request {
 	request, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("/players/%s", player), nil)
 	return request
-}
-
-func assertResponseBody(t *testing.T, got string, want string) {
-	t.Helper()
-
-	if got != want {
-		t.Errorf("got %q, want %q", got, want)
-	}
-}
-
-func assertStatus(t *testing.T, got int, want int) {
-	t.Helper()
-
-	if got != want {
-		t.Errorf("got %d, want %d", got, want)
-	}
 }
