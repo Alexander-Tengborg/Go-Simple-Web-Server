@@ -1,8 +1,11 @@
 package main
 
 import (
+	"cmp"
 	"encoding/binary"
 	"log"
+	"slices"
+	"sort"
 	"sync"
 	"time"
 
@@ -10,6 +13,11 @@ import (
 )
 
 var playerScoreBucket = []byte("PlayerScores")
+
+type BoltPlayerStore struct {
+	mu sync.Mutex
+	db *bolt.DB
+}
 
 func NewBoltPlayerStore(db_name string) (*BoltPlayerStore, error) {
 	db_path := "./databases/" + db_name
@@ -26,11 +34,6 @@ func NewBoltPlayerStore(db_name string) (*BoltPlayerStore, error) {
 	}
 
 	return store, nil
-}
-
-type BoltPlayerStore struct {
-	mu sync.Mutex
-	db *bolt.DB
 }
 
 func (b *BoltPlayerStore) GetPlayerScore(name string) int {
@@ -88,6 +91,14 @@ func (b *BoltPlayerStore) GetLeague() []Player {
 		})
 
 		return nil
+	})
+
+	slices.SortFunc(players, func(a Player, b Player) int {
+		return cmp.Compare(b.Wins, a.Wins)
+	})
+
+	sort.Slice(players, func(i, j int) bool {
+		return i < j
 	})
 
 	return players

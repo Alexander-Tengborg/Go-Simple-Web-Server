@@ -25,7 +25,16 @@ func TestRecordingWinsAndRetrievingThem(t *testing.T) {
 	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
 	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
 
-	t.Run("get score", func(t *testing.T) {
+	player2 := "George"
+	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player2))
+
+	player3 := "Ted"
+	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player3))
+	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player3))
+	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player3))
+	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player3))
+
+	t.Run("get score of one player", func(t *testing.T) {
 		response := httptest.NewRecorder()
 		server.ServeHTTP(response, newGetScoreRequest(player))
 
@@ -33,18 +42,20 @@ func TestRecordingWinsAndRetrievingThem(t *testing.T) {
 		assert.Equal(t, "3", response.Body.String())
 	})
 
-	t.Run("get league", func(t *testing.T) {
+	t.Run("get league from highest to lowest amount of wins", func(t *testing.T) {
 		response := httptest.NewRecorder()
 		server.ServeHTTP(response, newLeagueRequest())
 
 		gotContentType := response.Result().Header.Get("content-type")
 		got := getLeagueFromResponse(t, response.Body)
 		want := []Player{
+			{"Ted", 4},
 			{"Linda", 3},
+			{"George", 1},
 		}
 
 		assert.Equal(t, http.StatusOK, response.Code)
 		assert.Equal(t, "application/json", gotContentType)
-		assert.ElementsMatch(t, want, got)
+		assert.Equal(t, want, got)
 	})
 }
