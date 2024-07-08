@@ -1,4 +1,4 @@
-package stores
+package main
 
 import (
 	"encoding/binary"
@@ -72,6 +72,25 @@ func (b *BoltPlayerStore) RecordWin(name string) {
 	if err != nil {
 		log.Println(err)
 	}
+}
+
+func (b *BoltPlayerStore) GetLeague() []Player {
+	var players []Player
+	b.db.View(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket(playerScoreBucket)
+
+		bucket.ForEach(func(name, wins []byte) error {
+			player := Player{string(name), btoi(wins)}
+
+			players = append(players, player)
+
+			return nil
+		})
+
+		return nil
+	})
+
+	return players
 }
 
 func (b *BoltPlayerStore) Close() error {

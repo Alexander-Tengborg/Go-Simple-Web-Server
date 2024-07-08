@@ -1,13 +1,12 @@
 package main
 
 import (
-	"Go-Simple-Web-Server/stores"
 	"log"
 	"net/http"
 )
 
 func main() {
-	store, err := stores.NewBoltPlayerStore("prod.db")
+	store, err := NewBoltPlayerStore("prod.db")
 	if err != nil {
 		log.Fatal(err)
 	}
