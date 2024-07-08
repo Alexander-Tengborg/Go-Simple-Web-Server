@@ -19,7 +19,7 @@ func TestRecordingWinsAndRetrievingThem(t *testing.T) {
 	err = store.ResetBucket()
 	assert.Nil(t, err)
 
-	server := PlayerServer{store}
+	server := NewPlayerServer(store)
 	player := "Linda"
 
 	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))

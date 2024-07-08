@@ -30,7 +30,7 @@ func TestGETPlayers(t *testing.T) {
 		},
 		nil,
 	}
-	server := &PlayerServer{store}
+	server := NewPlayerServer(store)
 
 	t.Run("returns Linda's score", func(t *testing.T) {
 		response := httptest.NewRecorder()
@@ -38,8 +38,8 @@ func TestGETPlayers(t *testing.T) {
 
 		server.ServeHTTP(response, request)
 
-		assert.Equal(t, response.Code, http.StatusOK)
-		assert.Equal(t, response.Body.String(), "20")
+		assert.Equal(t, http.StatusOK, response.Code)
+		assert.Equal(t, "20", response.Body.String())
 	})
 
 	t.Run("returns Steve's score", func(t *testing.T) {
@@ -48,8 +48,8 @@ func TestGETPlayers(t *testing.T) {
 
 		server.ServeHTTP(response, request)
 
-		assert.Equal(t, response.Code, http.StatusOK)
-		assert.Equal(t, response.Body.String(), "4")
+		assert.Equal(t, http.StatusOK, response.Code)
+		assert.Equal(t, "4", response.Body.String())
 	})
 
 	t.Run("returns 404 on missing players", func(t *testing.T) {
@@ -67,7 +67,7 @@ func TestStoreWins(t *testing.T) {
 		map[string]int{},
 		[]string{},
 	}
-	server := &PlayerServer{store}
+	server := NewPlayerServer(store)
 
 	t.Run("it record wins when POST", func(t *testing.T) {
 		player := "Linda"
@@ -76,7 +76,7 @@ func TestStoreWins(t *testing.T) {
 
 		server.ServeHTTP(response, request)
 
-		assert.Equal(t, response.Code, http.StatusAccepted)
+		assert.Equal(t, http.StatusAccepted, response.Code)
 
 		if len(store.winCalls) != 1 {
 			t.Errorf("got %d calls to recordWin, want %d", len(store.winCalls), 1)
@@ -85,6 +85,20 @@ func TestStoreWins(t *testing.T) {
 		if store.winCalls[0] != player {
 			t.Errorf("did not store correct winner got %q want %q", store.winCalls[0], player)
 		}
+	})
+}
+
+func TestLeague(t *testing.T) {
+	store := &StubPlayerStore{}
+	server := NewPlayerServer(store)
+
+	t.Run("it returns 200 on /league", func(t *testing.T) {
+		response := httptest.NewRecorder()
+		request, _ := http.NewRequest(http.MethodGet, "/league", nil)
+
+		server.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusOK, response.Code)
 	})
 }
 

@@ -12,7 +12,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	server := &PlayerServer{store}
+	server := NewPlayerServer(store)
 
 	err = http.ListenAndServe(":8080", server)
 	if err != nil {

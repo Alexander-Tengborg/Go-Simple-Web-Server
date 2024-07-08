@@ -12,7 +12,8 @@ import (
 var playerScoreBucket = []byte("PlayerScores")
 
 func NewBoltPlayerStore(db_name string) (*BoltPlayerStore, error) {
-	db, err := bolt.Open(db_name, 0600, &bolt.Options{Timeout: 1 * time.Second})
+	db_path := "./databases/" + db_name
+	db, err := bolt.Open(db_path, 0600, &bolt.Options{Timeout: 1 * time.Second})
 	if err != nil {
 		return nil, err
 	}
