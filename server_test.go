@@ -1,33 +1,13 @@
-package main
+package poker
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
-
-type StubPlayerStore struct {
-	scores   map[string]int
-	winCalls []string
-	league   []Player
-}
-
-func (s *StubPlayerStore) GetPlayerScore(player string) int {
-	return s.scores[player]
-}
-
-func (s *StubPlayerStore) RecordWin(player string) {
-	s.winCalls = append(s.winCalls, player)
-}
-
-func (s *StubPlayerStore) GetLeague() []Player {
-	return s.league
-}
 
 func TestGETPlayers(t *testing.T) {
 	store := &StubPlayerStore{
@@ -87,12 +67,12 @@ func TestStoreWins(t *testing.T) {
 
 		assert.Equal(t, http.StatusAccepted, response.Code)
 
-		if len(store.winCalls) != 1 {
-			t.Errorf("got %d calls to recordWin, want %d", len(store.winCalls), 1)
+		if len(store.WinCalls) != 1 {
+			t.Errorf("got %d calls to recordWin, want %d", len(store.WinCalls), 1)
 		}
 
-		if store.winCalls[0] != player {
-			t.Errorf("did not store correct winner got %q want %q", store.winCalls[0], player)
+		if store.WinCalls[0] != player {
+			t.Errorf("did not store correct winner got %q want %q", store.WinCalls[0], player)
 		}
 	})
 }
@@ -135,15 +115,4 @@ func newPostWinRequest(player string) *http.Request {
 func newLeagueRequest() *http.Request {
 	request, _ := http.NewRequest(http.MethodGet, "/league", nil)
 	return request
-}
-
-func getLeagueFromResponse(t *testing.T, body io.Reader) []Player {
-	t.Helper()
-
-	var got []Player
-
-	err := json.NewDecoder(body).Decode(&got)
-	assert.Nilf(t, err, "Unable to parse response %q into []Player", body)
-
-	return got
 }

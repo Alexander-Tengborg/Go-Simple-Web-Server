@@ -1,4 +1,4 @@
-package main
+package poker
 
 import (
 	"cmp"
@@ -20,7 +20,7 @@ type BoltPlayerStore struct {
 }
 
 func NewBoltPlayerStore(db_name string) (*BoltPlayerStore, error) {
-	db_path := "./databases/" + db_name
+	db_path := db_name
 	db, err := bolt.Open(db_path, 0600, &bolt.Options{Timeout: 1 * time.Second})
 	if err != nil {
 		return nil, err
