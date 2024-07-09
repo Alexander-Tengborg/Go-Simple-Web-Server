@@ -16,6 +16,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	poker.NewCLI(store, os.Stdin).PlayPoker()
+	game := poker.NewTexasHoldem(poker.BlindAlerterFunc(poker.StdOutAlerter), store)
 
+	poker.NewCLI(os.Stdin, os.Stdout, game).PlayPoker()
 }
