@@ -2,11 +2,12 @@ package poker
 
 import (
 	"fmt"
+	"io"
 	"time"
 )
 
 type Game interface {
-	Start(numberOfPlayers int)
+	Start(numberOfPlayers int, alertsDestination io.Writer)
 	Finish(winner string)
 }
 
@@ -22,17 +23,17 @@ func NewTexasHoldem(alerter BlindAlerter, store PlayerStore) *TexasHoldem {
 	}
 }
 
-func (g *TexasHoldem) Start(numberOfPlayers int) {
-	g.scheduleBlindAlerts(numberOfPlayers)
+func (g *TexasHoldem) Start(numberOfPlayers int, alertsDestination io.Writer) {
+	g.scheduleBlindAlerts(numberOfPlayers, alertsDestination)
 }
 
-func (g *TexasHoldem) scheduleBlindAlerts(numberOfPlayers int) {
-	blindIncrement := time.Duration(5+numberOfPlayers) * time.Minute
+func (g *TexasHoldem) scheduleBlindAlerts(numberOfPlayers int, alertsDestination io.Writer) {
+	blindIncrement := time.Duration(5+numberOfPlayers) * time.Second
 
 	blinds := []int{100, 200, 300, 400, 500, 600, 800, 1000, 2000, 4000, 8000}
 	blindTime := 0 * time.Second
 	for _, blind := range blinds {
-		g.alerter.ScheduleAlertAt(blindTime, blind)
+		g.alerter.ScheduleAlertAt(blindTime, blind, alertsDestination)
 		blindTime += blindIncrement
 	}
 }

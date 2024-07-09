@@ -13,7 +13,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	server := poker.NewPlayerServer(store)
+	game := poker.NewTexasHoldem(poker.BlindAlerterFunc(poker.Alerter), store)
+
+	server, err := poker.NewPlayerServer(store, game)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	err = http.ListenAndServe(":8080", server)
 	if err != nil {

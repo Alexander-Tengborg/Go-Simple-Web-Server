@@ -26,7 +26,7 @@ func (s *StubPlayerStore) GetLeague() []Player {
 	return s.League
 }
 
-func getLeagueFromResponse(t *testing.T, body io.Reader) []Player {
+func GetLeagueFromResponse(t *testing.T, body io.Reader) []Player {
 	t.Helper()
 
 	var got []Player

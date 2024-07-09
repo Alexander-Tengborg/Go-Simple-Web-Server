@@ -21,20 +21,24 @@ type ScheduledAlert struct {
 	Amount int
 }
 
-func (s *SpyBlindAlerter) ScheduleAlertAt(duration time.Duration, amount int) {
+func (s *SpyBlindAlerter) ScheduleAlertAt(duration time.Duration, amount int, to io.Writer) {
 	s.alerts = append(s.alerts, ScheduledAlert{duration, amount})
 }
 
 type GameSpy struct {
-	StartedWith  int
-	FinishedWith string
 	StartCalled  bool
+	StartedWith  int
+
 	FinishCalled bool
+	FinishedWith string
+
+	BlindAlert []byte
 }
 
-func (g *GameSpy) Start(numberOfPlayers int) {
+func (g *GameSpy) Start(numberOfPlayers int, alertsDestination io.Writer) {
 	g.StartedWith = numberOfPlayers
 	g.StartCalled = true
+	alertsDestination.Write(g.BlindAlert)
 }
 
 func (g *GameSpy) Finish(winner string) {
@@ -44,9 +48,10 @@ func (g *GameSpy) Finish(winner string) {
 
 var dummySpyAlerter = &SpyBlindAlerter{}
 var dummyPlayerStore = &poker.StubPlayerStore{}
+var dummyGame = &GameSpy{}
 
 func TestCLI(t *testing.T) {
-	t.Run("Start a game with 2 players and record 'Ted' as the winner", func(t *testing.T) {
+	t.Run("Start a game with 2 players and record 'Linda' as the winner", func(t *testing.T) {
 		in := userSends("2", "Linda wins")
 		stdout := &bytes.Buffer{}
 

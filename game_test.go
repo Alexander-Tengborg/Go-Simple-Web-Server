@@ -2,6 +2,7 @@ package poker_test
 
 import (
 	poker "Go-Simple-Web-Server"
+	"io"
 	"testing"
 	"time"
 
@@ -13,7 +14,7 @@ func TestGame_Start(t *testing.T) {
 		blindAlerter := &SpyBlindAlerter{}
 		game := poker.NewTexasHoldem(blindAlerter, dummyPlayerStore)
 
-		game.Start(5)
+		game.Start(5, io.Discard)
 
 		cases := []ScheduledAlert{
 			{At: 0 * time.Second, Amount: 100},

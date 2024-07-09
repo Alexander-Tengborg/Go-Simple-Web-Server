@@ -1,6 +1,7 @@
-package poker
+package poker_test
 
 import (
+	poker "Go-Simple-Web-Server"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -11,14 +12,14 @@ import (
 func TestRecordingWinsAndRetrievingThem(t *testing.T) {
 	DB_NAME := "dev.db"
 
-	store, err := NewBoltPlayerStore(DB_NAME)
+	store, err := poker.NewBoltPlayerStore(DB_NAME)
 	assert.Nil(t, err)
 	defer store.Close()
 
 	err = store.ResetBucket()
 	assert.Nil(t, err)
 
-	server := NewPlayerServer(store)
+	server := mustMakePlayerServer(t, store, dummyGame)
 	player := "Linda"
 
 	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
@@ -47,8 +48,8 @@ func TestRecordingWinsAndRetrievingThem(t *testing.T) {
 		server.ServeHTTP(response, newLeagueRequest())
 
 		gotContentType := response.Result().Header.Get("content-type")
-		got := getLeagueFromResponse(t, response.Body)
-		want := []Player{
+		got := poker.GetLeagueFromResponse(t, response.Body)
+		want := []poker.Player{
 			{"Ted", 4},
 			{"Linda", 3},
 			{"George", 1},
